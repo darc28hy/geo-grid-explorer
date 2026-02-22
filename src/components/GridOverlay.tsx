@@ -22,20 +22,12 @@ interface GridOverlayProps {
   selectedCode?: string | null;
 }
 
-// Color schemes per grid mode
-const COLORS = {
-  geohex: {
-    fill: [239, 68, 68, 12] as [number, number, number, number],
-    fillSelected: [239, 68, 68, 60] as [number, number, number, number],
-    line: [239, 68, 68, 180] as [number, number, number, number],
-    text: [185, 28, 28, 255] as [number, number, number, number],
-  },
-  geohash: {
-    fill: [59, 130, 246, 12] as [number, number, number, number],
-    fillSelected: [59, 130, 246, 60] as [number, number, number, number],
-    line: [59, 130, 246, 180] as [number, number, number, number],
-    text: [30, 64, 175, 255] as [number, number, number, number],
-  },
+// Unified color scheme (blue, matching app primary)
+const GRID_COLORS = {
+  fill: [59, 130, 246, 12] as [number, number, number, number],
+  fillSelected: [59, 130, 246, 60] as [number, number, number, number],
+  line: [59, 130, 246, 180] as [number, number, number, number],
+  text: [30, 64, 175, 255] as [number, number, number, number],
 };
 
 /**
@@ -158,7 +150,7 @@ export function GridOverlay({
       return;
     }
 
-    const colors = COLORS[mode];
+    const colors = GRID_COLORS;
     const labelSize = getLabelSize(cells.length);
     const lineWidth = getLineWidthPixels(cells.length);
 
@@ -188,12 +180,10 @@ export function GridOverlay({
       getText: (d: GridCellData) => d.code,
       getColor: colors.text,
       getSize: labelSize,
-      fontFamily: "monospace",
+      fontFamily: "'JetBrains Mono', 'Courier New', Courier, monospace",
       fontWeight: "bold",
       getTextAnchor: "middle",
       getAlignmentBaseline: "center",
-      outlineColor: [255, 255, 255, 220],
-      outlineWidth: 3,
       pickable: false,
       sizeMaxPixels: 26,
       sizeMinPixels: 8,
@@ -202,7 +192,7 @@ export function GridOverlay({
     overlayRef.current.setProps({
       layers: [polygonLayer, textLayer],
     });
-  }, [cells, selectedCode, mode]);
+  }, [cells, selectedCode]);
 
   return null;
 }

@@ -49,13 +49,11 @@ interface ControlPanelProps {
   onClose?: () => void;
 }
 
-const MODE_META: Record<
-  GridMode,
-  { subtitle: string; icon: typeof Hexagon }
-> = {
-  geohex: { subtitle: "v3 Hexagonal Grid Explorer", icon: Hexagon },
-  geohash: { subtitle: "Base-32 Rectangular Grid Explorer", icon: Grid3x3 },
-};
+const MODE_META: Record<GridMode, { subtitle: string; icon: typeof Hexagon }> =
+  {
+    geohex: { subtitle: "v3 Hexagonal Grid Explorer", icon: Hexagon },
+    geohash: { subtitle: "Base-32 Rectangular Grid Explorer", icon: Grid3x3 },
+  };
 
 export function ControlPanel({
   mode,
@@ -147,7 +145,7 @@ export function ControlPanel({
             <button
               type="button"
               onClick={onClose}
-              className="md:hidden w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
+              className="md:hidden w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -158,7 +156,7 @@ export function ControlPanel({
           <button
             type="button"
             onClick={() => onModeChange("geohex")}
-            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
               mode === "geohex"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -169,7 +167,7 @@ export function ControlPanel({
           <button
             type="button"
             onClick={() => onModeChange("geohash")}
-            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
               mode === "geohash"
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -195,9 +193,7 @@ export function ControlPanel({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() =>
-                    onLevelChange(Math.max(minLevel, level - 1))
-                  }
+                  onClick={() => onLevelChange(Math.max(minLevel, level - 1))}
                   disabled={level <= minLevel}
                   className="shrink-0"
                 >
@@ -215,9 +211,7 @@ export function ControlPanel({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() =>
-                    onLevelChange(Math.min(maxLevel, level + 1))
-                  }
+                  onClick={() => onLevelChange(Math.min(maxLevel, level + 1))}
                   disabled={level >= maxLevel}
                   className="shrink-0"
                 >
@@ -237,7 +231,7 @@ export function ControlPanel({
                 <button
                   type="button"
                   onClick={() => setSearchTab("code")}
-                  className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+                  className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                     searchTab === "code"
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -248,7 +242,7 @@ export function ControlPanel({
                 <button
                   type="button"
                   onClick={() => setSearchTab("latlng")}
-                  className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+                  className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                     searchTab === "latlng"
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -266,7 +260,7 @@ export function ControlPanel({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       placeholder={codePlaceholder}
-                      className="font-mono text-sm tracking-wide flex-1 min-w-0"
+                      className="font-mono text-sm flex-1 min-w-0"
                     />
                     <Button type="submit" className="gap-1">
                       Go
@@ -335,7 +329,7 @@ export function ControlPanel({
                 <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                   Selected Point
                 </Label>
-                <p className="font-mono text-xs text-foreground/70 tabular-nums mt-1">
+                <p className="font-mono text-xs text-foreground/80 tabular-nums mt-1">
                   {clickedLat.toFixed(6)}, {clickedLng.toFixed(6)}
                 </p>
               </div>
@@ -362,13 +356,13 @@ export function ControlPanel({
                     <div className="flex-1 min-w-0">
                       <span
                         className={`
-                          font-mono text-sm tracking-wide truncate block
-                          ${isActive ? "font-semibold text-foreground" : "text-muted-foreground"}
+                          font-mono text-sm truncate block
+                          ${isActive ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}
                         `}
                       >
                         {cell.code}
                       </span>
-                      <span className="font-mono text-[10px] text-muted-foreground/60 tabular-nums">
+                      <span className="font-mono text-[11px] text-muted-foreground/70 tabular-nums">
                         {cell.lat.toFixed(6)}, {cell.lon.toFixed(6)}
                       </span>
                     </div>
@@ -377,7 +371,7 @@ export function ControlPanel({
                         <button
                           type="button"
                           onClick={(e) => e.stopPropagation()}
-                          className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md cursor-pointer hover:bg-black/10 transition-colors group/menu"
+                          className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md cursor-pointer hover:bg-black/10 transition-colors group/menu focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
                           {copiedLevel === cell.level ? (
                             <Check className="w-3.5 h-3.5 text-green-600" />

@@ -1,8 +1,4 @@
-import type {
-  GridAdapter,
-  GridCell,
-  CellsInBoundsResult,
-} from "./grid-types";
+import type { GridAdapter, GridCell, CellsInBoundsResult } from "./grid-types";
 import {
   encode,
   decode,

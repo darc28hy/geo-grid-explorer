@@ -13,9 +13,9 @@ bun run dev
 
 ### 環境変数
 
-| 変数名                       | 用途                  | 設定ファイル             |
-| ---------------------------- | --------------------- | ------------------------ |
-| `VITE_GOOGLE_MAPS_API_KEY`   | Google Maps APIキー   | `.env`                   |
+| 変数名                     | 用途                | 設定ファイル |
+| -------------------------- | ------------------- | ------------ |
+| `VITE_GOOGLE_MAPS_API_KEY` | Google Maps APIキー | `.env`       |
 
 `.env`は`.gitignore`に含まれるため、各開発者がローカルで設定する。
 
@@ -43,7 +43,7 @@ cp .claude/launch.example.json .claude/launch.json
 | `bun run lint:fix`   | oxlint (自動修正)                         |
 | `bun run fmt`        | oxfmt (formatter)                         |
 | `bun run fmt:check`  | oxfmt (チェックのみ)                      |
-| `bun run fix`        | lint:fix + fmt                             |
+| `bun run fix`        | lint:fix + fmt                            |
 
 ## Tech Stack
 

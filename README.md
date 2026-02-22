@@ -13,14 +13,18 @@ bun run dev
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | 開発サーバー起動 (port 3000) |
-| `bun run build` | TypeScriptチェック + プロダクションビルド |
-| `bun run preview` | ビルド成果物のプレビュー (port 4173) |
-| `bun test` | テスト実行 |
-| `bun run test:watch` | テスト (watch mode) |
-| `bun run lint` | ESLint |
+| Command              | Description                               |
+| -------------------- | ----------------------------------------- |
+| `bun run dev`        | 開発サーバー起動 (port 3000)              |
+| `bun run build`      | TypeScriptチェック + プロダクションビルド |
+| `bun run preview`    | ビルド成果物のプレビュー (port 4173)      |
+| `bun run test`       | テスト実行                                |
+| `bun run test:watch` | テスト (watch mode)                       |
+| `bun run lint`       | oxlint                                    |
+| `bun run lint:fix`   | oxlint (自動修正)                         |
+| `bun run fmt`        | oxfmt (formatter)                         |
+| `bun run fmt:check`  | oxfmt (チェックのみ)                      |
+| `bun run fix`        | lint:fix + fmt                             |
 
 ## Tech Stack
 

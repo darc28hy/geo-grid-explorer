@@ -1,20 +1,28 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ComponentProps<"button"> {
-  variant?: "default" | "secondary" | "outline" | "ghost"
-  size?: "default" | "sm" | "lg" | "icon"
+  variant?: "default" | "secondary" | "outline" | "ghost";
+  size?: "default" | "sm" | "lg" | "icon";
 }
 
-function Button({ className, variant = "default", size = "default", ...props }: ButtonProps) {
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  ...props
+}: ButtonProps) {
   return (
     <button
       className={cn(
         "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
         {
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90": variant === "default",
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80": variant === "secondary",
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground": variant === "outline",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90":
+            variant === "default",
+          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80":
+            variant === "secondary",
+          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground":
+            variant === "outline",
           "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
         },
         {
@@ -23,11 +31,11 @@ function Button({ className, variant = "default", size = "default", ...props }: 
           "h-10 rounded-md px-8": size === "lg",
           "h-9 w-9": size === "icon",
         },
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Button }
+export { Button };

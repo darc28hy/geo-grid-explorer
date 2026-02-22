@@ -21,11 +21,21 @@ type HexData = {
  * Fewer hexes = more space per hex = larger labels.
  */
 function getLabelSize(hexCount: number): number {
-  if (hexCount > 500) return 12;
-  if (hexCount > 200) return 14;
-  if (hexCount > 80) return 16;
-  if (hexCount > 30) return 18;
-  if (hexCount > 10) return 22;
+  if (hexCount > 500) {
+    return 12;
+  }
+  if (hexCount > 200) {
+    return 14;
+  }
+  if (hexCount > 80) {
+    return 16;
+  }
+  if (hexCount > 30) {
+    return 18;
+  }
+  if (hexCount > 10) {
+    return 22;
+  }
   return 26;
 }
 
@@ -34,12 +44,20 @@ function getLabelSize(hexCount: number): number {
  * More hexes = thinner lines to avoid visual clutter.
  */
 function getLineWidthPixels(hexCount: number): number {
-  if (hexCount > 1000) return 0.5;
-  if (hexCount > 200) return 1;
+  if (hexCount > 1000) {
+    return 0.5;
+  }
+  if (hexCount > 200) {
+    return 1;
+  }
   return 2;
 }
 
-export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps) {
+export function HexOverlay({
+  level,
+  onExceeded,
+  selectedCode,
+}: HexOverlayProps) {
   const map = useMap();
   const overlayRef = useRef<GoogleMapsOverlay | null>(null);
   const [hexes, setHexes] = useState<HexData[]>([]);
@@ -47,10 +65,14 @@ export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps)
   onExceededRef.current = onExceeded;
 
   const updateHexes = useCallback(() => {
-    if (!map) return;
+    if (!map) {
+      return;
+    }
 
     const bounds = map.getBounds();
-    if (!bounds) return;
+    if (!bounds) {
+      return;
+    }
 
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
@@ -60,7 +82,7 @@ export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps)
       sw.lat(),
       ne.lng(),
       sw.lng(),
-      level
+      level,
     );
 
     setHexes(result.hexes);
@@ -69,7 +91,9 @@ export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps)
 
   // Initialize overlay
   useEffect(() => {
-    if (!map) return;
+    if (!map) {
+      return;
+    }
 
     const overlay = new GoogleMapsOverlay({ interleaved: true });
     overlay.setMap(map);
@@ -83,7 +107,9 @@ export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps)
 
   // Listen for map idle to update hex data
   useEffect(() => {
-    if (!map) return;
+    if (!map) {
+      return;
+    }
 
     updateHexes();
     const idleListener = map.addListener("idle", updateHexes);
@@ -95,7 +121,9 @@ export function HexOverlay({ level, onExceeded, selectedCode }: HexOverlayProps)
 
   // Update deck.gl layers when hex data changes
   useEffect(() => {
-    if (!overlayRef.current) return;
+    if (!overlayRef.current) {
+      return;
+    }
 
     const labelSize = getLabelSize(hexes.length);
     const lineWidth = getLineWidthPixels(hexes.length);

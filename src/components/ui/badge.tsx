@@ -1,8 +1,8 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
 interface BadgeProps extends ComponentProps<"span"> {
-  variant?: "default" | "secondary" | "outline"
+  variant?: "default" | "secondary" | "outline";
 }
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
@@ -15,11 +15,11 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
           "bg-secondary text-secondary-foreground": variant === "secondary",
           "border border-input text-foreground": variant === "outline",
         },
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Badge }
+export { Badge };

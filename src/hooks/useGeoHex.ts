@@ -61,15 +61,12 @@ export function useGeoHex(initialLevel = 4): UseGeoHexReturn {
   const [error, setError] = useState<string | null>(null);
   const [flyTo, setFlyTo] = useState<FlyTo | null>(null);
 
-  const encodeFromClick = useCallback(
-    (lat: number, lng: number) => {
-      setClickedLat(lat);
-      setClickedLng(lng);
-      setAllLevelCells(encodeAllLevels(lat, lng));
-      setError(null);
-    },
-    []
-  );
+  const encodeFromClick = useCallback((lat: number, lng: number) => {
+    setClickedLat(lat);
+    setClickedLng(lng);
+    setAllLevelCells(encodeAllLevels(lat, lng));
+    setError(null);
+  }, []);
 
   const searchByLatLng = useCallback(
     (lat: number, lng: number) => {
@@ -79,7 +76,7 @@ export function useGeoHex(initialLevel = 4): UseGeoHexReturn {
       setFlyTo({ lat, lng, zoom: hexLevelToZoom(level) });
       setError(null);
     },
-    [level]
+    [level],
   );
 
   const decodeFromInput = useCallback((code: string): boolean => {
@@ -102,12 +99,9 @@ export function useGeoHex(initialLevel = 4): UseGeoHexReturn {
     return true;
   }, []);
 
-  const handleSetLevel = useCallback(
-    (newLevel: number) => {
-      setLevel(newLevel);
-    },
-    []
-  );
+  const handleSetLevel = useCallback((newLevel: number) => {
+    setLevel(newLevel);
+  }, []);
 
   const selectLevel = useCallback(
     (newLevel: number) => {
@@ -120,7 +114,7 @@ export function useGeoHex(initialLevel = 4): UseGeoHexReturn {
         });
       }
     },
-    [clickedLat, clickedLng]
+    [clickedLat, clickedLng],
   );
 
   return {

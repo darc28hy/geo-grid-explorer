@@ -1,4 +1,9 @@
-import { useState, useCallback, type SyntheticEvent, type MouseEvent } from "react";
+import {
+  useState,
+  useCallback,
+  type SyntheticEvent,
+  type MouseEvent,
+} from "react";
 import {
   Hexagon,
   X,
@@ -56,12 +61,15 @@ export function ControlPanel({
   const [searchTab, setSearchTab] = useState<"code" | "latlng">("code");
   const [copiedLevel, setCopiedLevel] = useState<number | null>(null);
 
-  const handleCopy = useCallback((code: string, cellLevel: number, e: MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(code);
-    setCopiedLevel(cellLevel);
-    setTimeout(() => setCopiedLevel(null), 1500);
-  }, []);
+  const handleCopy = useCallback(
+    (code: string, cellLevel: number, e: MouseEvent) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(code);
+      setCopiedLevel(cellLevel);
+      setTimeout(() => setCopiedLevel(null), 1500);
+    },
+    [],
+  );
 
   const [codeError, setCodeError] = useState<string | null>(null);
 
@@ -213,14 +221,21 @@ export function ControlPanel({
                     </Button>
                   </form>
                   {(codeError || error) && (
-                    <p className="text-xs text-destructive mt-2.5">{codeError || error}</p>
+                    <p className="text-xs text-destructive mt-2.5">
+                      {codeError || error}
+                    </p>
                   )}
                 </>
               ) : (
                 <>
-                  <form onSubmit={handleLatLngSubmit} className="flex gap-2 items-end">
+                  <form
+                    onSubmit={handleLatLngSubmit}
+                    className="flex gap-2 items-end"
+                  >
                     <div className="flex-1 min-w-0">
-                      <Label className="text-[10px] text-muted-foreground">Lat</Label>
+                      <Label className="text-[10px] text-muted-foreground">
+                        Lat
+                      </Label>
                       <Input
                         inputMode="decimal"
                         value={latInput}
@@ -230,7 +245,9 @@ export function ControlPanel({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <Label className="text-[10px] text-muted-foreground">Lng</Label>
+                      <Label className="text-[10px] text-muted-foreground">
+                        Lng
+                      </Label>
                       <Input
                         inputMode="decimal"
                         value={lngInput}
@@ -245,13 +262,14 @@ export function ControlPanel({
                     </Button>
                   </form>
                   {latLngError && (
-                    <p className="text-xs text-destructive mt-2.5">{latLngError}</p>
+                    <p className="text-xs text-destructive mt-2.5">
+                      {latLngError}
+                    </p>
                   )}
                 </>
               )}
             </CardContent>
           </Card>
-
         </div>
 
         <Separator />
@@ -279,11 +297,7 @@ export function ControlPanel({
                     className={`
                       w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-left
                       transition-colors duration-75 cursor-pointer
-                      ${
-                        isActive
-                          ? "bg-primary/8 ring-1 ring-primary/15"
-                          : "hover:bg-muted/60"
-                      }
+                      ${isActive ? "bg-primary/8 ring-1 ring-primary/15" : "hover:bg-muted/60"}
                     `}
                   >
                     <Badge
@@ -320,7 +334,9 @@ export function ControlPanel({
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" side="bottom">
-                        <DropdownMenuItem onClick={(e) => handleCopy(cell.code, cell.level, e)}>
+                        <DropdownMenuItem
+                          onClick={(e) => handleCopy(cell.code, cell.level, e)}
+                        >
                           <ClipboardCopy className="w-4 h-4" />
                           Copy Code
                         </DropdownMenuItem>
@@ -335,11 +351,12 @@ export function ControlPanel({
           <div className="flex-1 flex items-center justify-center p-10">
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-muted/60 flex items-center justify-center mx-auto mb-3">
-                <MapPin className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
+                <MapPin
+                  className="w-5 h-5 text-muted-foreground/60"
+                  strokeWidth={1.5}
+                />
               </div>
-              <p className="text-sm text-muted-foreground">
-                Click on the map
-              </p>
+              <p className="text-sm text-muted-foreground">Click on the map</p>
               <p className="text-xs text-muted-foreground/50 mt-1">
                 to explore GeoHex codes
               </p>

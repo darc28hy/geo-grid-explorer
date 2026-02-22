@@ -1,13 +1,24 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
-interface SliderProps extends Omit<ComponentProps<"input">, "onChange" | "value"> {
-  value?: number[]
-  onValueChange?: (value: number[]) => void
+interface SliderProps extends Omit<
+  ComponentProps<"input">,
+  "onChange" | "value"
+> {
+  value?: number[];
+  onValueChange?: (value: number[]) => void;
 }
 
-function Slider({ className, value, onValueChange, min = 0, max = 100, step = 1, ...props }: SliderProps) {
-  const currentValue = value?.[0] ?? Number(min)
+function Slider({
+  className,
+  value,
+  onValueChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  ...props
+}: SliderProps) {
+  const currentValue = value?.[0] ?? Number(min);
 
   return (
     <input
@@ -19,11 +30,11 @@ function Slider({ className, value, onValueChange, min = 0, max = 100, step = 1,
       onChange={(e) => onValueChange?.([Number(e.target.value)])}
       className={cn(
         "w-full h-2 rounded-lg appearance-none cursor-pointer bg-secondary accent-primary",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Slider }
+export { Slider };

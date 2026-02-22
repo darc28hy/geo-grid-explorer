@@ -48,7 +48,7 @@ function xy2loc(x: number, y: number): { lon: number; lat: number } {
 function adjustXY(
   x: number,
   y: number,
-  level: number
+  level: number,
 ): { x: number; y: number } {
   const maxSteps = Math.pow(3, level + 2);
   const steps = Math.abs(x - y);
@@ -75,7 +75,7 @@ function getCode(
   modX: number,
   modY: number,
   locX: number,
-  level: number
+  level: number,
 ): string {
   const code3x: number[] = [];
   const code3y: number[] = [];
@@ -145,7 +145,8 @@ function getXYByCode(code: string): { x: number; y: number; level: number } {
   const level = code.length - 2;
 
   let dec9 =
-    "" + (H_KEY.indexOf(code[0]) * 30 + H_KEY.indexOf(code[1])) +
+    "" +
+    (H_KEY.indexOf(code[0]) * 30 + H_KEY.indexOf(code[1])) +
     code.substring(2);
 
   if (
@@ -191,10 +192,16 @@ function getXYByCode(code: string): { x: number; y: number; level: number } {
   let y = 0;
   for (let i = 0; i <= level + 2; i++) {
     const pow = Math.pow(3, level + 2 - i);
-    if (decX[i] === 0) x -= pow;
-    else if (decX[i] === 2) x += pow;
-    if (decY[i] === 0) y -= pow;
-    else if (decY[i] === 2) y += pow;
+    if (decX[i] === 0) {
+      x -= pow;
+    } else if (decX[i] === 2) {
+      x += pow;
+    }
+    if (decY[i] === 0) {
+      y -= pow;
+    } else if (decY[i] === 2) {
+      y += pow;
+    }
   }
 
   const adjusted = adjustXY(x, y, level);
@@ -308,7 +315,7 @@ export function decode(code: string): GeoHexCell {
 export function getHexCoords(
   lat: number,
   lon: number,
-  level: number
+  level: number,
 ): LatLng[] {
   const { x, y } = loc2xy(lon, lat);
   const size = calcHexSize(level);
@@ -335,12 +342,20 @@ export function getHexCoords(
  * Validate a GeoHex code string
  */
 export function isValidCode(code: string): boolean {
-  if (code.length < 2) return false;
-  if (H_KEY.indexOf(code[0]) === -1) return false;
-  if (H_KEY.indexOf(code[1]) === -1) return false;
+  if (code.length < 2) {
+    return false;
+  }
+  if (H_KEY.indexOf(code[0]) === -1) {
+    return false;
+  }
+  if (H_KEY.indexOf(code[1]) === -1) {
+    return false;
+  }
   for (let i = 2; i < code.length; i++) {
     const c = code[i];
-    if (c < "0" || c > "8") return false;
+    if (c < "0" || c > "8") {
+      return false;
+    }
   }
   return true;
 }
@@ -355,10 +370,7 @@ export function getLevelFromCode(code: string): number {
 /**
  * Encode all levels (0-15) for a given lat/lon
  */
-export function encodeAllLevels(
-  lat: number,
-  lon: number
-): GeoHexCell[] {
+export function encodeAllLevels(lat: number, lon: number): GeoHexCell[] {
   const results: GeoHexCell[] = [];
   for (let level = 0; level <= 15; level++) {
     results.push(encode(lat, lon, level));
@@ -382,7 +394,7 @@ export function getHexesInBounds(
   south: number,
   east: number,
   west: number,
-  level: number
+  level: number,
 ): HexesInBoundsResult {
   const size = calcHexSize(level);
   const unitX = 6 * size;
@@ -414,7 +426,9 @@ export function getHexesInBounds(
 
   // Cap total hex count to avoid freezing on low zoom levels
   const count = (gridXMax - gridXMin) * (gridYMax - gridYMin);
-  if (count > HEX_RENDER_LIMIT) return { hexes: [], exceeded: true };
+  if (count > HEX_RENDER_LIMIT) {
+    return { hexes: [], exceeded: true };
+  }
 
   const seen = new Set<string>();
   const results: Array<{ code: string; center: LatLng; coords: LatLng[] }> = [];
@@ -427,11 +441,17 @@ export function getHexesInBounds(
       const center = xy2loc(mercX2, mercY2);
 
       const cell = encode(center.lat, center.lon, level);
-      if (seen.has(cell.code)) continue;
+      if (seen.has(cell.code)) {
+        continue;
+      }
       seen.add(cell.code);
 
       const coords = getHexCoords(cell.lat, cell.lon, level);
-      results.push({ code: cell.code, center: { lat: cell.lat, lng: cell.lon }, coords });
+      results.push({
+        code: cell.code,
+        center: { lat: cell.lat, lng: cell.lon },
+        coords,
+      });
     }
   }
 

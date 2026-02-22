@@ -1,8 +1,8 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
 interface AlertProps extends ComponentProps<"div"> {
-  variant?: "default" | "destructive" | "warning"
+  variant?: "default" | "destructive" | "warning";
 }
 
 function Alert({ className, variant = "default", ...props }: AlertProps) {
@@ -13,14 +13,15 @@ function Alert({ className, variant = "default", ...props }: AlertProps) {
         "relative w-full rounded-lg border px-4 py-3 text-sm",
         {
           "bg-background text-foreground": variant === "default",
-          "border-destructive/50 text-destructive bg-destructive/5": variant === "destructive",
+          "border-destructive/50 text-destructive bg-destructive/5":
+            variant === "destructive",
           "border-slate-700 text-white bg-slate-800/90": variant === "warning",
         },
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function AlertDescription({ className, ...props }: ComponentProps<"div">) {
@@ -29,7 +30,7 @@ function AlertDescription({ className, ...props }: ComponentProps<"div">) {
       className={cn("text-sm [&_p]:leading-relaxed", className)}
       {...props}
     />
-  )
+  );
 }
 
-export { Alert, AlertDescription }
+export { Alert, AlertDescription };

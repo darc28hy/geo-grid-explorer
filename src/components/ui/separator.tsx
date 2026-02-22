@@ -1,5 +1,5 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/lib/utils"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
 function Separator({
   className,
@@ -12,11 +12,11 @@ function Separator({
       className={cn(
         "shrink-0 bg-border",
         orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Separator }
+export { Separator };

@@ -15,7 +15,7 @@ describe("GeoHex v3.2 encode (coord2HEX)", () => {
     (level, lat, lon, expectedCode) => {
       const result = encode(lat, lon, level);
       expect(result.code).toBe(expectedCode);
-    }
+    },
   );
 });
 
@@ -28,6 +28,6 @@ describe("GeoHex v3.2 decode (code2HEX)", () => {
       // For practical purposes, use a small epsilon for float comparison
       expect(result.lat).toBeCloseTo(expectedLat, 10);
       expect(result.lon).toBeCloseTo(expectedLon, 10);
-    }
+    },
   );
 });

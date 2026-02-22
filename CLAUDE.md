@@ -7,9 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 bun run dev        # Vite dev server on port 3000 (host: 0.0.0.0)
 bun run build      # tsc -b && vite build
-bun run lint       # ESLint
-bun test           # Vitest (all tests, accepts file path/pattern args)
 bun run preview    # Vite preview server on port 4173
+bun run test       # Vitest (all tests, accepts file path/pattern args)
+bun run lint       # oxlint
+bun run fmt        # oxfmt (formatter)
 bun install        # Install dependencies (uses bun.lock)
 ```
 

@@ -31,7 +31,9 @@ function App() {
             level={level}
             onMapClick={encodeFromClick}
             flyTo={flyTo}
-            selectedCode={allLevelCells.find((c) => c.level === level)?.code ?? null}
+            selectedCode={
+              allLevelCells.find((c) => c.level === level)?.code ?? null
+            }
           />
           {/* Mobile toggle button */}
           <button

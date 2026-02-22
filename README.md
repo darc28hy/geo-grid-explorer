@@ -11,11 +11,30 @@ bun install
 bun run dev
 ```
 
+### 環境変数
+
+| 変数名                       | 用途                  | 設定ファイル             |
+| ---------------------------- | --------------------- | ------------------------ |
+| `VITE_GOOGLE_MAPS_API_KEY`   | Google Maps APIキー   | `.env`                   |
+
+`.env`は`.gitignore`に含まれるため、各開発者がローカルで設定する。
+
+### Claude Codeプレビュー
+
+Claude Codeのプレビュー機能(`preview_start`)を使用する場合、別途`.claude/launch.json`の設定が必要。
+
+```bash
+cp .claude/launch.example.json .claude/launch.json
+# launch.json内のVITE_GOOGLE_MAPS_API_KEYを.envと同じ値に設定
+```
+
+`.claude/launch.json`もAPIキーを含むため`.gitignore`で除外されている。
+
 ## Scripts
 
 | Command              | Description                               |
 | -------------------- | ----------------------------------------- |
-| `bun run dev`        | 開発サーバー起動 (port 3000)              |
+| `bun run dev`        | 開発サーバー起動 (port 4173)              |
 | `bun run build`      | TypeScriptチェック + プロダクションビルド |
 | `bun run preview`    | ビルド成果物のプレビュー (port 4173)      |
 | `bun run test`       | テスト実行                                |

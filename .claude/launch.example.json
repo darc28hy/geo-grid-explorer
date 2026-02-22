@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev"],
+      "port": 4173,
+      "env": {
+        "VITE_GOOGLE_MAPS_API_KEY": "your_api_key_here"
+      }
+    },
+    {
+      "name": "preview",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "preview"],
+      "port": 4173,
+      "env": {
+        "VITE_GOOGLE_MAPS_API_KEY": "your_api_key_here"
+      }
+    }
+  ]
+}

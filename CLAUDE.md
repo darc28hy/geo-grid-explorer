@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-bun run dev        # Vite dev server on port 3000 (host: 0.0.0.0)
+bun run dev        # Vite dev server on port 4173 (host: 0.0.0.0)
 bun run build      # tsc -b && vite build
 bun run preview    # Vite preview server on port 4173
 bun run test       # Vitest (all tests, accepts file path/pattern args)

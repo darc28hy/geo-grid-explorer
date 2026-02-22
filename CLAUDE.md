@@ -28,6 +28,13 @@ App.tsx — Layout (responsive sidebar + map)
     └── GridOverlay.tsx — deck.gl PolygonLayer + TextLayer for grid rendering
 ```
 
+### Domain Knowledge
+
+GeoHex / GeoHash の仕様は以下を参照:
+
+- **`docs/geohex-spec.md`** — GeoHex v3 のコード体系、レベルとセルサイズ、エンコード/デコードの仕組み
+- **`docs/geohash-spec.md`** — GeoHash のbase-32文字セット、precision体系、プレフィックス階層性、GeoHexとの比較
+
 ### Core Logic
 
 - **`src/lib/grid-types.ts`** — Common types and `GridAdapter` interface for pluggable grid systems.

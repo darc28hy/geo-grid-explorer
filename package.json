@@ -1,7 +1,13 @@
 {
   "name": "geo-grid-explorer",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "homepage": "https://darc28hy.github.io/geo-grid-explorer/",
   "license": "MIT",
+  "author": "darc28hy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darc28hy/geo-grid-explorer.git"
+  },
   "type": "module",
   "scripts": {
     "preinstall": "npx -y only-allow bun",

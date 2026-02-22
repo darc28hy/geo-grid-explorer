@@ -6,6 +6,7 @@ import {
 } from "react";
 import {
   Hexagon,
+  Grid3x3,
   X,
   Minus,
   Plus,
@@ -27,23 +28,41 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import type { GeoHexCell } from "@/lib/geohex";
+import type { GridMode, GridCell } from "@/lib/grid-types";
 
 interface ControlPanelProps {
+  mode: GridMode;
+  onModeChange: (mode: GridMode) => void;
   level: number;
+  minLevel: number;
+  maxLevel: number;
   onLevelChange: (level: number) => void;
   onCodeSubmit: (code: string) => boolean;
   onLatLngSubmit: (lat: number, lng: number) => void;
   onLevelSelect: (level: number) => void;
-  allLevelCells: GeoHexCell[];
+  allLevelCells: GridCell[];
   clickedLat: number | null;
   clickedLng: number | null;
   error: string | null;
+  codePlaceholder: string;
+  adapterName: string;
   onClose?: () => void;
 }
 
+const MODE_META: Record<
+  GridMode,
+  { subtitle: string; icon: typeof Hexagon }
+> = {
+  geohex: { subtitle: "v3 Hexagonal Grid Explorer", icon: Hexagon },
+  geohash: { subtitle: "Base-32 Rectangular Grid Explorer", icon: Grid3x3 },
+};
+
 export function ControlPanel({
+  mode,
+  onModeChange,
   level,
+  minLevel,
+  maxLevel,
   onLevelChange,
   onCodeSubmit,
   onLatLngSubmit,
@@ -52,6 +71,8 @@ export function ControlPanel({
   clickedLat,
   clickedLng,
   error,
+  codePlaceholder,
+  adapterName,
   onClose,
 }: ControlPanelProps) {
   const [inputValue, setInputValue] = useState("");
@@ -103,20 +124,23 @@ export function ControlPanel({
     onLatLngSubmit(lat, lng);
   };
 
+  const meta = MODE_META[mode];
+  const Icon = meta.icon;
+
   return (
     <div className="w-full h-full bg-background border-l border-border flex flex-col">
       {/* Header */}
       <div className="px-6 py-5 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Hexagon className="w-4 h-4 text-primary" />
+            <Icon className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1">
             <h1 className="text-base font-semibold text-foreground">
-              GeoHex Viewer
+              {adapterName} Explorer
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              v3 Hexagonal Grid Explorer
+              {meta.subtitle}
             </p>
           </div>
           {onClose && (
@@ -128,6 +152,31 @@ export function ControlPanel({
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
           )}
+        </div>
+        {/* Mode switch */}
+        <div className="flex gap-1 rounded-md bg-muted p-0.5 mt-3">
+          <button
+            type="button"
+            onClick={() => onModeChange("geohex")}
+            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+              mode === "geohex"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            GeoHex
+          </button>
+          <button
+            type="button"
+            onClick={() => onModeChange("geohash")}
+            className={`flex-1 text-xs font-medium px-3 py-1.5 rounded transition-colors cursor-pointer ${
+              mode === "geohash"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            GeoHash
+          </button>
         </div>
       </div>
 
@@ -146,8 +195,10 @@ export function ControlPanel({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onLevelChange(Math.max(0, level - 1))}
-                  disabled={level <= 0}
+                  onClick={() =>
+                    onLevelChange(Math.max(minLevel, level - 1))
+                  }
+                  disabled={level <= minLevel}
                   className="shrink-0"
                 >
                   <Minus className="w-4 h-4" />
@@ -156,16 +207,18 @@ export function ControlPanel({
                   <Slider
                     value={[level]}
                     onValueChange={(v) => onLevelChange(v[0])}
-                    min={0}
-                    max={15}
+                    min={minLevel}
+                    max={maxLevel}
                     step={1}
                   />
                 </div>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onLevelChange(Math.min(15, level + 1))}
-                  disabled={level >= 15}
+                  onClick={() =>
+                    onLevelChange(Math.min(maxLevel, level + 1))
+                  }
+                  disabled={level >= maxLevel}
                   className="shrink-0"
                 >
                   <Plus className="w-4 h-4" />
@@ -212,7 +265,7 @@ export function ControlPanel({
                     <Input
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="XM4885413"
+                      placeholder={codePlaceholder}
                       className="font-mono text-sm tracking-wide flex-1 min-w-0"
                     />
                     <Button type="submit" className="gap-1">
@@ -358,7 +411,7 @@ export function ControlPanel({
               </div>
               <p className="text-sm text-muted-foreground">Click on the map</p>
               <p className="text-xs text-muted-foreground/50 mt-1">
-                to explore GeoHex codes
+                to explore {adapterName} codes
               </p>
             </div>
           </div>

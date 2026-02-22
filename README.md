@@ -1,6 +1,6 @@
-# GeoHex Viewer
+# Geo Grid Explorer
 
-GeoHex v3の六角形グリッドをGoogle Maps上で可視化するWebアプリケーション。
+GeoHex v3・GeoHashなどの地理グリッドシステムをGoogle Maps上で探索するWebアプリケーション。
 
 ## Setup
 
@@ -50,6 +50,6 @@ cp .claude/launch.example.json .claude/launch.json
 - React 19 + TypeScript
 - Vite
 - Google Maps (`@vis.gl/react-google-maps`)
-- deck.gl (六角形グリッド描画)
+- deck.gl (グリッド描画)
 - Tailwind CSS v4 + shadcn/ui + Lucide React
 - Vitest

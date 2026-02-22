@@ -3,13 +3,16 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { Menu } from "lucide-react";
 import { MapView } from "@/components/MapView";
 import { ControlPanel } from "@/components/ControlPanel";
-import { useGeoHex } from "@/hooks/useGeoHex";
+import { useGridSystem } from "@/hooks/useGridSystem";
+import { getAdapter } from "@/lib/grid-registry";
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? "";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
+    mode,
+    setMode,
     level,
     setLevel,
     clickedLat,
@@ -21,19 +24,29 @@ function App() {
     selectLevel,
     error,
     flyTo,
-  } = useGeoHex();
+    minLevel,
+    maxLevel,
+    renderLimit,
+    codePlaceholder,
+    adapterName,
+  } = useGridSystem();
+
+  const adapter = getAdapter(mode);
 
   return (
     <APIProvider apiKey={API_KEY}>
       <div className="flex w-full h-full">
         <div className="flex-1 relative min-h-0">
           <MapView
+            mode={mode}
             level={level}
             onMapClick={encodeFromClick}
             flyTo={flyTo}
             selectedCode={
               allLevelCells.find((c) => c.level === level)?.code ?? null
             }
+            getCellsInBounds={adapter.getCellsInBounds.bind(adapter)}
+            renderLimit={renderLimit}
           />
           {/* Mobile toggle button */}
           <button
@@ -63,7 +76,11 @@ function App() {
           `}
         >
           <ControlPanel
+            mode={mode}
+            onModeChange={setMode}
             level={level}
+            minLevel={minLevel}
+            maxLevel={maxLevel}
             onLevelChange={setLevel}
             onCodeSubmit={decodeFromInput}
             onLatLngSubmit={searchByLatLng}
@@ -72,6 +89,8 @@ function App() {
             clickedLat={clickedLat}
             clickedLng={clickedLng}
             error={error}
+            codePlaceholder={codePlaceholder}
+            adapterName={adapterName}
             onClose={() => setSidebarOpen(false)}
           />
         </div>

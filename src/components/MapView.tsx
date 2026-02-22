@@ -1,15 +1,24 @@
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { HexOverlay } from "./HexOverlay";
-import { HEX_RENDER_LIMIT } from "@/lib/geohex";
+import { GridOverlay } from "./GridOverlay";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { GridMode, CellsInBoundsResult } from "@/lib/grid-types";
 
 interface MapViewProps {
+  mode: GridMode;
   level: number;
   onMapClick: (lat: number, lng: number) => void;
   flyTo?: { lat: number; lng: number; zoom: number } | null;
   selectedCode?: string | null;
+  getCellsInBounds: (
+    north: number,
+    south: number,
+    east: number,
+    west: number,
+    level: number,
+  ) => CellsInBoundsResult;
+  renderLimit: number;
 }
 
 function MapClickHandler({
@@ -109,10 +118,13 @@ function MapStateTracker({
 }
 
 export function MapView({
+  mode,
   level,
   onMapClick,
   flyTo,
   selectedCode,
+  getCellsInBounds,
+  renderLimit,
 }: MapViewProps) {
   const [exceeded, setExceeded] = useState(false);
   const [mapState, setMapState] = useState<MapState>({
@@ -146,8 +158,10 @@ export function MapView({
         <MapClickHandler onMapClick={handleClick} />
         <FlyToHandler flyTo={flyTo ?? null} />
         <MapStateTracker onChange={handleMapStateChange} />
-        <HexOverlay
+        <GridOverlay
+          mode={mode}
           level={level}
+          getCellsInBounds={getCellsInBounds}
           onExceeded={setExceeded}
           selectedCode={selectedCode ?? null}
         />
@@ -206,7 +220,7 @@ export function MapView({
           className="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-md shadow-lg pointer-events-none"
         >
           <AlertDescription>
-            {`表示上限（${HEX_RENDER_LIMIT.toLocaleString()}セル）を超えたため、グリッドを非表示にしています。ズームインするかグリッドレベルを下げると表示されます。`}
+            {`表示上限（${renderLimit.toLocaleString()}セル）を超えたため、グリッドを非表示にしています。ズームインするかグリッドレベルを下げると表示されます。`}
           </AlertDescription>
         </Alert>
       )}

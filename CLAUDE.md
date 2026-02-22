@@ -16,22 +16,26 @@ bun install        # Install dependencies (uses bun.lock)
 
 ## Architecture
 
-GeoHex Viewer is a React SPA that visualizes hexagonal grids (GeoHex v3) on Google Maps.
+Geo Grid Explorer is a React SPA that visualizes geographic grid systems (GeoHex v3, GeoHash) on Google Maps.
 
 ### Component Hierarchy
 
 ```
 App.tsx — Layout (responsive sidebar + map)
-├── ControlPanel.tsx — Right panel: level slider, code/coord search, cell list with copy
+├── ControlPanel.tsx — Right panel: mode switch, level slider, code/coord search, cell list with copy
 └── MapView.tsx — Google Maps wrapper (@vis.gl/react-google-maps)
     ├── Internal sub-components: MapClickHandler, FlyToHandler, MapStateTracker
-    └── HexOverlay.tsx — deck.gl PolygonLayer + TextLayer for hex rendering
+    └── GridOverlay.tsx — deck.gl PolygonLayer + TextLayer for grid rendering
 ```
 
 ### Core Logic
 
-- **`src/lib/geohex.ts`** — Full GeoHex v3 TypeScript implementation. Key functions: `encode()`, `decode()`, `encodeAllLevels()`, `getHexCoords()`, `getHexesInBounds()`. Uses Web Mercator internally with base-9/base-52 encoding. Render limit: 50,000 hexes.
-- **`src/hooks/useGeoHex.ts`** — Central state hook managing selected point, grid level, map state, and all derived hex computations.
+- **`src/lib/grid-types.ts`** — Common types and `GridAdapter` interface for pluggable grid systems.
+- **`src/lib/geohex.ts`** — Full GeoHex v3 TypeScript implementation. Render limit: 50,000 hexes.
+- **`src/lib/geohash.ts`** — GeoHash implementation (base-32 encoding). Render limit: 50,000 cells.
+- **`src/lib/geohex-adapter.ts`** / **`src/lib/geohash-adapter.ts`** — GridAdapter wrappers.
+- **`src/lib/grid-registry.ts`** — `getAdapter(mode)` helper to retrieve adapters by GridMode.
+- **`src/hooks/useGridSystem.ts`** — Central state hook managing mode, per-mode grid levels, selected point, and all derived computations.
 - **`src/lib/utils.ts`** — `cn()` helper (clsx + tailwind-merge).
 
 ### UI Stack
@@ -39,7 +43,7 @@ App.tsx — Layout (responsive sidebar + map)
 - **Tailwind CSS v4** (`@import "tailwindcss"` in index.css, with `@theme inline` for OKLCH custom colors)
 - **shadcn/ui-style components** in `src/components/ui/` (Radix primitives)
 - **Lucide React** for all icons
-- **deck.gl + @deck.gl/google-maps** for high-performance hex overlay
+- **deck.gl + @deck.gl/google-maps** for high-performance grid overlay
 
 ### Key Technical Details
 

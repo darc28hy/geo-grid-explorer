@@ -63,4 +63,6 @@ export interface GridAdapter {
   ): CellsInBoundsResult;
   /** Convert grid level to Google Maps zoom level */
   levelToZoom(level: number): number;
+  /** Get neighbor cell codes for a given code */
+  getNeighbors(code: string): string[];
 }

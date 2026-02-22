@@ -6,6 +6,7 @@ import {
   getLevelFromCode as ghGetLevel,
   encodeAllLevels as ghEncodeAll,
   getHexesInBounds,
+  getNeighbors as ghGetNeighbors,
   HEX_RENDER_LIMIT,
 } from "./geohex";
 
@@ -74,4 +75,6 @@ export const geohexAdapter: GridAdapter = {
     };
     return table[level] ?? 12;
   },
+
+  getNeighbors: ghGetNeighbors,
 };

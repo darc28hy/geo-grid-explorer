@@ -14,6 +14,9 @@ import {
   EllipsisVertical,
   ClipboardCopy,
   MapPin,
+  ChevronDown,
+  ChevronRight,
+  Copy,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -46,6 +49,7 @@ interface ControlPanelProps {
   error: string | null;
   codePlaceholder: string;
   adapterName: string;
+  neighborCodes: string[] | null;
   onClose?: () => void;
 }
 
@@ -54,6 +58,11 @@ const MODE_META: Record<GridMode, { subtitle: string; icon: typeof Hexagon }> =
     geohex: { subtitle: "v3 Hexagonal Grid Explorer", icon: Hexagon },
     geohash: { subtitle: "Base-32 Rectangular Grid Explorer", icon: Grid3x3 },
   };
+
+const NEIGHBOR_DIRECTIONS: Record<GridMode, string[]> = {
+  geohex: ["N", "NE", "SE", "S", "SW", "NW"],
+  geohash: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+};
 
 export function ControlPanel({
   mode,
@@ -71,6 +80,7 @@ export function ControlPanel({
   error,
   codePlaceholder,
   adapterName,
+  neighborCodes,
   onClose,
 }: ControlPanelProps) {
   const [inputValue, setInputValue] = useState("");
@@ -79,6 +89,8 @@ export function ControlPanel({
   const [latLngError, setLatLngError] = useState<string | null>(null);
   const [searchTab, setSearchTab] = useState<"code" | "latlng">("code");
   const [copiedLevel, setCopiedLevel] = useState<number | null>(null);
+  const [showNeighbors, setShowNeighbors] = useState(true);
+  const [copiedNeighbor, setCopiedNeighbor] = useState<number | null>(null);
 
   const handleCopy = useCallback(
     (code: string, cellLevel: number, e: MouseEvent) => {
@@ -89,6 +101,21 @@ export function ControlPanel({
     },
     [],
   );
+
+  const handleCopyNeighbor = useCallback((code: string, index: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedNeighbor(index);
+    setTimeout(() => setCopiedNeighbor(null), 1500);
+  }, []);
+
+  const handleCopyAllNeighbors = useCallback(() => {
+    if (!neighborCodes) {
+      return;
+    }
+    navigator.clipboard.writeText(neighborCodes.join("\n"));
+    setCopiedNeighbor(-1);
+    setTimeout(() => setCopiedNeighbor(null), 1500);
+  }, [neighborCodes]);
 
   const [codeError, setCodeError] = useState<string | null>(null);
 
@@ -393,6 +420,79 @@ export function ControlPanel({
                 );
               })}
             </div>
+
+            {/* Neighbors */}
+            {neighborCodes && neighborCodes.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowNeighbors(!showNeighbors)}
+                    className="w-full flex items-center gap-2 text-left cursor-pointer group"
+                  >
+                    {showNeighbors ? (
+                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground cursor-pointer">
+                      Neighbors ({neighborCodes.length})
+                    </Label>
+                    <div className="flex-1" />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyAllNeighbors();
+                      }}
+                      className="text-[10px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedNeighbor === -1 ? (
+                        <Check className="w-3 h-3 text-green-600" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                      Copy All
+                    </button>
+                  </button>
+                  {showNeighbors && (
+                    <div className="mt-2 space-y-0.5">
+                      {neighborCodes.map((code, i) => {
+                        const dir = NEIGHBOR_DIRECTIONS[mode][i];
+                        return (
+                          <div
+                            key={code}
+                            className="flex items-center gap-2 px-3 py-1 rounded-md hover:bg-muted/60 transition-colors group/row"
+                          >
+                            <Badge
+                              variant="outline"
+                              className="w-7 h-5 text-[10px] font-medium shrink-0 justify-center"
+                            >
+                              {dir}
+                            </Badge>
+                            <span className="font-mono text-sm text-muted-foreground truncate flex-1 min-w-0">
+                              {code}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyNeighbor(code, i)}
+                              className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md cursor-pointer opacity-0 group-hover/row:opacity-100 hover:bg-black/10 transition-all"
+                            >
+                              {copiedNeighbor === i ? (
+                                <Check className="w-3 h-3 text-green-600" />
+                              ) : (
+                                <ClipboardCopy className="w-3 h-3 text-muted-foreground" />
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center p-10">

@@ -29,6 +29,7 @@ function App() {
     renderLimit,
     codePlaceholder,
     adapterName,
+    neighborCodes,
   } = useGridSystem();
 
   const adapter = getAdapter(mode);
@@ -91,6 +92,7 @@ function App() {
             error={error}
             codePlaceholder={codePlaceholder}
             adapterName={adapterName}
+            neighborCodes={neighborCodes}
             onClose={() => setSidebarOpen(false)}
           />
         </div>

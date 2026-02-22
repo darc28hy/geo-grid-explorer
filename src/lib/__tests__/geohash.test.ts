@@ -8,6 +8,7 @@ import {
   encodeAllLevels,
   getRectCoords,
   getHashesInBounds,
+  getNeighbors,
 } from "../geohash";
 
 describe("GeoHash encode", () => {
@@ -175,6 +176,61 @@ describe("GeoHash getHashesInBounds", () => {
     const result = getHashesInBounds(35.69, 35.67, 139.78, 139.76, 6);
     for (const h of result.hashes) {
       expect(h.coords).toHaveLength(4);
+    }
+  });
+});
+
+describe("GeoHash getNeighbors", () => {
+  it("returns 8 neighbor codes", () => {
+    expect(getNeighbors("xn76u")).toHaveLength(8);
+  });
+
+  it("all neighbors are valid and same precision", () => {
+    for (const n of getNeighbors("xn76u")) {
+      expect(isValidCode(n)).toBe(true);
+      expect(n).toHaveLength(5);
+    }
+  });
+
+  it("neighbors are different from original and unique", () => {
+    const code = "xn76u";
+    const neighbors = getNeighbors(code);
+    expect(new Set(neighbors).size).toBe(8);
+    for (const n of neighbors) {
+      expect(n).not.toBe(code);
+    }
+  });
+
+  it("is symmetric: neighbor's neighbors include original", () => {
+    const code = "xn76u";
+    for (const n of getNeighbors(code)) {
+      expect(getNeighbors(n)).toContain(code);
+    }
+  });
+
+  it("works at precision 1", () => {
+    const neighbors = getNeighbors("s");
+    expect(neighbors).toHaveLength(8);
+    for (const n of neighbors) {
+      expect(isValidCode(n)).toBe(true);
+    }
+  });
+
+  it("handles date line wrapping", () => {
+    const cell = encode(0, 179.99, 3);
+    const neighbors = getNeighbors(cell.code);
+    expect(neighbors).toHaveLength(8);
+    for (const n of neighbors) {
+      expect(isValidCode(n)).toBe(true);
+    }
+  });
+
+  it("handles pole proximity", () => {
+    const cell = encode(89.9, 0, 3);
+    const neighbors = getNeighbors(cell.code);
+    expect(neighbors).toHaveLength(8);
+    for (const n of neighbors) {
+      expect(isValidCode(n)).toBe(true);
     }
   });
 });

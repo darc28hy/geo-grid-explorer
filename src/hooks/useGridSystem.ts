@@ -27,6 +27,7 @@ export interface UseGridSystemReturn {
   renderLimit: number;
   codePlaceholder: string;
   adapterName: string;
+  neighborCodes: string[] | null;
 }
 
 export function useGridSystem(
@@ -126,6 +127,14 @@ export function useGridSystem(
     [adapter, clickedLat, clickedLng, setLevel],
   );
 
+  const neighborCodes = useMemo(() => {
+    const cell = allLevelCells.find((c) => c.level === level);
+    if (!cell) {
+      return null;
+    }
+    return adapter.getNeighbors(cell.code);
+  }, [allLevelCells, level, adapter]);
+
   return {
     mode,
     setMode,
@@ -145,5 +154,6 @@ export function useGridSystem(
     renderLimit: adapter.renderLimit,
     codePlaceholder: adapter.codePlaceholder,
     adapterName: adapter.name,
+    neighborCodes,
   };
 }

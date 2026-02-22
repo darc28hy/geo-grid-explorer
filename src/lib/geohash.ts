@@ -301,3 +301,37 @@ export function getHashesInBounds(
 
   return { hashes, exceeded: false };
 }
+
+/**
+ * Get the 8 neighbor cell codes for a given GeoHash code.
+ * Returns codes in order: [N, NE, E, SE, S, SW, W, NW]
+ */
+export function getNeighbors(code: string): string[] {
+  const precision = code.length;
+  const { latSize, lonSize } = getCellSize(precision);
+  const center = decode(code);
+
+  const offsets: [number, number][] = [
+    [+latSize, 0], // N
+    [+latSize, +lonSize], // NE
+    [0, +lonSize], // E
+    [-latSize, +lonSize], // SE
+    [-latSize, 0], // S
+    [-latSize, -lonSize], // SW
+    [0, -lonSize], // W
+    [+latSize, -lonSize], // NW
+  ];
+
+  return offsets.map(([dlat, dlon]) => {
+    const newLat = Math.max(-89.999999, Math.min(89.999999, center.lat + dlat));
+    let newLon = center.lon + dlon;
+    if (newLon > 180) {
+      newLon -= 360;
+    }
+    if (newLon < -180) {
+      newLon += 360;
+    }
+
+    return encode(newLat, newLon, precision).code;
+  });
+}

@@ -457,3 +457,65 @@ export function getHexesInBounds(
 
   return { hexes: results, exceeded: false };
 }
+
+/**
+ * Get the 6 neighbor cell codes for a given GeoHex code.
+ * Returns codes in order: [N, NE, SE, S, SW, NW]
+ *
+ * GeoHex uses flat-top hexagons, so the 6 neighbor directions are
+ * N, NE, SE, S, SW, NW (no E/W).
+ *
+ * In the GeoHex axial coordinate system (x, y), the Mercator displacement is:
+ *   Δ_mercX = 3·size·(dx − dy)
+ *   Δ_mercY = √3·size·(dx + dy)
+ * This yields the following mapping:
+ *   [+1,+1] → (0, +2√3·size)  = N
+ *   [+1, 0] → (+3s, +√3·size) = NE
+ *   [0, −1] → (+3s, −√3·size) = SE
+ *   [−1,−1] → (0, −2√3·size)  = S
+ *   [−1, 0] → (−3s, −√3·size) = SW
+ *   [0, +1] → (−3s, +√3·size) = NW
+ */
+export function getNeighbors(code: string): string[] {
+  const { x, y, level } = getXYByCode(code);
+  const size = calcHexSize(level);
+  const unitX = 6 * size;
+  const unitY = 6 * size * H_K;
+
+  // 6 flat-top hexagon neighbor directions in axial coordinates
+  const offsets: [number, number][] = [
+    [+1, +1], // N
+    [+1, 0], // NE
+    [0, -1], // SE
+    [-1, -1], // S
+    [-1, 0], // SW
+    [0, +1], // NW
+  ];
+
+  return offsets.map(([dx, dy]) => {
+    const nx = x + dx;
+    const ny = y + dy;
+    const adj = adjustXY(nx, ny, level);
+
+    // Convert grid coordinates back to center lat/lon (same as encode lines 249-252)
+    const mercY = (H_K * adj.x * unitX + adj.y * unitY) / 2;
+    const mercX = (mercY - adj.y * unitY) / H_K;
+    const center = xy2loc(mercX, mercY);
+
+    // Handle world-wrap for code generation (same as encode lines 254-266)
+    const maxSteps = Math.pow(3, level + 2);
+    const steps = Math.abs(adj.x - adj.y);
+
+    let modX = adj.x;
+    let modY = adj.y;
+    let cLon = center.lon;
+
+    if (steps === maxSteps && adj.x > adj.y) {
+      modX = adj.y;
+      modY = adj.x;
+      cLon = -180;
+    }
+
+    return getCode(modX, modY, cLon, level);
+  });
+}

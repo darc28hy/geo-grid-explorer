@@ -6,6 +6,7 @@ import {
   getLevelFromCode,
   encodeAllLevels,
   getHashesInBounds,
+  getNeighbors as ghashGetNeighbors,
   GEOHASH_RENDER_LIMIT,
 } from "./geohash";
 
@@ -62,4 +63,6 @@ export const geohashAdapter: GridAdapter = {
     };
     return table[level] ?? 12;
   },
+
+  getNeighbors: ghashGetNeighbors,
 };

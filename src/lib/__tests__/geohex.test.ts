@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode } from "../geohex";
+import { encode, decode, isValidCode, getNeighbors } from "../geohex";
 import coord2HexData from "./test_coord2HEX.json";
 import code2HexData from "./test_code2HEX.json";
 
@@ -30,4 +30,63 @@ describe("GeoHex v3.2 decode (code2HEX)", () => {
       expect(result.lon).toBeCloseTo(expectedLon, 10);
     },
   );
+});
+
+describe("GeoHex getNeighbors", () => {
+  it("returns 6 neighbor codes", () => {
+    expect(getNeighbors("XM4885413")).toHaveLength(6);
+  });
+
+  it("all neighbors are valid codes at the same level", () => {
+    const code = "XM4885413";
+    const neighbors = getNeighbors(code);
+    for (const n of neighbors) {
+      expect(n).toHaveLength(code.length);
+      expect(isValidCode(n)).toBe(true);
+    }
+  });
+
+  it("neighbors are different from the original and unique", () => {
+    const code = "XM4885413";
+    const neighbors = getNeighbors(code);
+    expect(new Set(neighbors).size).toBe(6);
+    for (const n of neighbors) {
+      expect(n).not.toBe(code);
+    }
+  });
+
+  it("is symmetric: neighbor's neighbors include original", () => {
+    const code = "XM488";
+    const neighbors = getNeighbors(code);
+    for (const n of neighbors) {
+      expect(getNeighbors(n)).toContain(code);
+    }
+  });
+
+  it("neighbor centers are close to original center", () => {
+    const code = "XM4885413";
+    const original = decode(code);
+    for (const n of getNeighbors(code)) {
+      const cell = decode(n);
+      expect(Math.abs(cell.lat - original.lat)).toBeLessThan(1);
+      expect(Math.abs(cell.lon - original.lon)).toBeLessThan(1);
+    }
+  });
+
+  it("works at level 0", () => {
+    const neighbors = getNeighbors("XM");
+    expect(neighbors).toHaveLength(6);
+    for (const n of neighbors) {
+      expect(isValidCode(n)).toBe(true);
+    }
+  });
+
+  it("works near the date line", () => {
+    const cell = encode(0, 179.9, 3);
+    const neighbors = getNeighbors(cell.code);
+    expect(neighbors).toHaveLength(6);
+    for (const n of neighbors) {
+      expect(isValidCode(n)).toBe(true);
+    }
+  });
 });

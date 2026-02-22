@@ -1,7 +1,7 @@
 {
   "name": "geo-grid-explorer",
   "version": "0.0.0",
-  "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "preinstall": "npx -y only-allow bun",

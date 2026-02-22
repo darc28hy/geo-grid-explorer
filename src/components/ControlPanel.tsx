@@ -95,7 +95,7 @@ export function ControlPanel({
   const handleCodeSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) {
-      setCodeError("コードを入力してください");
+      setCodeError("Please enter a code");
       return;
     }
     setCodeError(null);
@@ -107,15 +107,15 @@ export function ControlPanel({
     const lat = parseFloat(latInput);
     const lng = parseFloat(lngInput);
     if (isNaN(lat) || isNaN(lng)) {
-      setLatLngError("数値を入力してください");
+      setLatLngError("Please enter valid numbers");
       return;
     }
     if (lat < -90 || lat > 90) {
-      setLatLngError("緯度は -90 ~ 90 の範囲で入力してください");
+      setLatLngError("Latitude must be between -90 and 90");
       return;
     }
     if (lng < -180 || lng > 180) {
-      setLatLngError("経度は -180 ~ 180 の範囲で入力してください");
+      setLatLngError("Longitude must be between -180 and 180");
       return;
     }
     setLatLngError(null);

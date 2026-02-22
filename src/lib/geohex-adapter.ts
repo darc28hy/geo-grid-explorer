@@ -24,7 +24,7 @@ export const geohexAdapter: GridAdapter = {
   maxLevel: 15,
   renderLimit: HEX_RENDER_LIMIT,
   codePlaceholder: "XM4885413",
-  invalidCodeMessage: "無効なGeoHexコードです",
+  invalidCodeMessage: "Invalid GeoHex code",
 
   encode(lat, lon, level) {
     return toGridCell(ghEncode(lat, lon, level));

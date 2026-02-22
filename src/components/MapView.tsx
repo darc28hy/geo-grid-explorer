@@ -220,7 +220,7 @@ export function MapView({
           className="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-md shadow-lg pointer-events-none"
         >
           <AlertDescription>
-            {`表示上限（${renderLimit.toLocaleString()}セル）を超えたため、グリッドを非表示にしています。ズームインするかグリッドレベルを下げると表示されます。`}
+            {`Grid hidden: exceeded ${renderLimit.toLocaleString()} cell limit. Zoom in or lower the grid level.`}
           </AlertDescription>
         </Alert>
       )}

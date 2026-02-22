@@ -15,7 +15,7 @@ export const geohashAdapter: GridAdapter = {
   maxLevel: 9,
   renderLimit: GEOHASH_RENDER_LIMIT,
   codePlaceholder: "xn76u",
-  invalidCodeMessage: "無効なGeoHashコードです",
+  invalidCodeMessage: "Invalid GeoHash code",
 
   encode(lat, lon, level): GridCell {
     return encode(lat, lon, level);

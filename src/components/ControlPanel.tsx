@@ -14,9 +14,7 @@ import {
   EllipsisVertical,
   ClipboardCopy,
   MapPin,
-  ChevronDown,
-  ChevronRight,
-  Copy,
+  CornerDownLeft,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +30,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import type { GridMode, GridCell } from "@/lib/grid-types";
+import { validateLatLng } from "@/lib/validation";
+import { NeighborSection } from "@/components/NeighborSection";
 
 interface ControlPanelProps {
   mode: GridMode;
@@ -59,11 +59,6 @@ const MODE_META: Record<GridMode, { subtitle: string; icon: typeof Hexagon }> =
     geohash: { subtitle: "Base-32 Rectangular Grid Explorer", icon: Grid3x3 },
   };
 
-const NEIGHBOR_DIRECTIONS: Record<GridMode, string[]> = {
-  geohex: ["N", "NE", "SE", "S", "SW", "NW"],
-  geohash: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
-};
-
 export function ControlPanel({
   mode,
   onModeChange,
@@ -89,8 +84,6 @@ export function ControlPanel({
   const [latLngError, setLatLngError] = useState<string | null>(null);
   const [searchTab, setSearchTab] = useState<"code" | "latlng">("code");
   const [copiedLevel, setCopiedLevel] = useState<number | null>(null);
-  const [showNeighbors, setShowNeighbors] = useState(true);
-  const [copiedNeighbor, setCopiedNeighbor] = useState<number | null>(null);
 
   const handleCopy = useCallback(
     (code: string, cellLevel: number, e: MouseEvent) => {
@@ -101,21 +94,6 @@ export function ControlPanel({
     },
     [],
   );
-
-  const handleCopyNeighbor = useCallback((code: string, index: number) => {
-    navigator.clipboard.writeText(code);
-    setCopiedNeighbor(index);
-    setTimeout(() => setCopiedNeighbor(null), 1500);
-  }, []);
-
-  const handleCopyAllNeighbors = useCallback(() => {
-    if (!neighborCodes) {
-      return;
-    }
-    navigator.clipboard.writeText(neighborCodes.join("\n"));
-    setCopiedNeighbor(-1);
-    setTimeout(() => setCopiedNeighbor(null), 1500);
-  }, [neighborCodes]);
 
   const [codeError, setCodeError] = useState<string | null>(null);
 
@@ -131,26 +109,18 @@ export function ControlPanel({
 
   const handleLatLngSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    const lat = parseFloat(latInput);
-    const lng = parseFloat(lngInput);
-    if (isNaN(lat) || isNaN(lng)) {
-      setLatLngError("Please enter valid numbers");
-      return;
-    }
-    if (lat < -90 || lat > 90) {
-      setLatLngError("Latitude must be between -90 and 90");
-      return;
-    }
-    if (lng < -180 || lng > 180) {
-      setLatLngError("Longitude must be between -180 and 180");
+    const result = validateLatLng(latInput, lngInput);
+    if (typeof result === "string") {
+      setLatLngError(result);
       return;
     }
     setLatLngError(null);
-    onLatLngSubmit(lat, lng);
+    onLatLngSubmit(result.lat, result.lng);
   };
 
   const meta = MODE_META[mode];
   const Icon = meta.icon;
+  const displayCodeError = codeError ?? error;
 
   return (
     <div className="w-full h-full bg-background border-l border-border flex flex-col">
@@ -291,12 +261,12 @@ export function ControlPanel({
                     />
                     <Button type="submit" className="gap-1">
                       Go
-                      <kbd className="text-[10px] opacity-50 font-sans">↵</kbd>
+                      <CornerDownLeft className="w-3 h-3 opacity-50" />
                     </Button>
                   </form>
-                  {(codeError || error) && (
+                  {displayCodeError && (
                     <p className="text-xs text-destructive mt-2.5">
-                      {codeError || error}
+                      {displayCodeError}
                     </p>
                   )}
                 </>
@@ -332,7 +302,7 @@ export function ControlPanel({
                     </div>
                     <Button type="submit" className="gap-1">
                       Go
-                      <kbd className="text-[10px] opacity-50 font-sans">↵</kbd>
+                      <CornerDownLeft className="w-3 h-3 opacity-50" />
                     </Button>
                   </form>
                   {latLngError && (
@@ -366,8 +336,16 @@ export function ControlPanel({
                 const isActive = cell.level === level;
                 return (
                   <div
+                    role="button"
+                    tabIndex={0}
                     key={cell.level}
                     onClick={() => onLevelSelect(cell.level)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onLevelSelect(cell.level);
+                      }
+                    }}
                     className={`
                       w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-left
                       transition-colors duration-75 cursor-pointer
@@ -423,75 +401,7 @@ export function ControlPanel({
 
             {/* Neighbors */}
             {neighborCodes && neighborCodes.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowNeighbors(!showNeighbors)}
-                    className="w-full flex items-center gap-2 text-left cursor-pointer group"
-                  >
-                    {showNeighbors ? (
-                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                    <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground cursor-pointer">
-                      Neighbors ({neighborCodes.length})
-                    </Label>
-                    <div className="flex-1" />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopyAllNeighbors();
-                      }}
-                      className="text-[10px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                      {copiedNeighbor === -1 ? (
-                        <Check className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                      Copy All
-                    </button>
-                  </button>
-                  {showNeighbors && (
-                    <div className="mt-2 space-y-0.5">
-                      {neighborCodes.map((code, i) => {
-                        const dir = NEIGHBOR_DIRECTIONS[mode][i];
-                        return (
-                          <div
-                            key={code}
-                            className="flex items-center gap-2 px-3 py-1 rounded-md hover:bg-muted/60 transition-colors group/row"
-                          >
-                            <Badge
-                              variant="outline"
-                              className="w-7 h-5 text-[10px] font-medium shrink-0 justify-center"
-                            >
-                              {dir}
-                            </Badge>
-                            <span className="font-mono text-sm text-muted-foreground truncate flex-1 min-w-0">
-                              {code}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleCopyNeighbor(code, i)}
-                              className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md cursor-pointer opacity-0 group-hover/row:opacity-100 hover:bg-black/10 transition-all"
-                            >
-                              {copiedNeighbor === i ? (
-                                <Check className="w-3 h-3 text-green-600" />
-                              ) : (
-                                <ClipboardCopy className="w-3 h-3 text-muted-foreground" />
-                              )}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </>
+              <NeighborSection mode={mode} neighborCodes={neighborCodes} />
             )}
           </div>
         ) : (

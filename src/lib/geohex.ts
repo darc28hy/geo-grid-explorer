@@ -70,6 +70,42 @@ function adjustXY(
   return { x, y };
 }
 
+// Balanced ternary digit: convert a coordinate component to a ternary digit (0, 1, or 2)
+function toBalancedTernaryDigit(
+  val: number,
+  pow: number,
+): { digit: number; remainder: number } {
+  const half = Math.ceil(pow / 2);
+  if (val >= half) {
+    return { digit: 2, remainder: val - pow };
+  }
+  if (val <= -half) {
+    return { digit: 0, remainder: val + pow };
+  }
+  return { digit: 1, remainder: val };
+}
+
+// World-wrap correction applied to the first 3 digits of a GeoHex code
+function applyWorldWrapCorrection(
+  code3x: number[],
+  code3y: number[],
+  locX: number,
+): void {
+  if (locX !== -180 && locX < 0) {
+    return;
+  }
+  if (code3x[1] !== code3y[1] || code3x[2] !== code3y[2]) {
+    return;
+  }
+  if (code3x[0] === 2 && code3y[0] === 1) {
+    code3x[0] = 1;
+    code3y[0] = 2;
+  } else if (code3x[0] === 1 && code3y[0] === 0) {
+    code3x[0] = 0;
+    code3y[0] = 1;
+  }
+}
+
 // Convert grid coordinates to GeoHex code
 function getCode(
   modX: number,
@@ -84,47 +120,16 @@ function getCode(
   for (let i = 0; i <= level + 2; i++) {
     const pow = Math.pow(3, level + 2 - i);
 
-    if (modX >= Math.ceil(pow / 2)) {
-      code3x[i] = 2;
-      modX -= pow;
-    } else if (modX <= -Math.ceil(pow / 2)) {
-      code3x[i] = 0;
-      modX += pow;
-    } else {
-      code3x[i] = 1;
-    }
+    const rx = toBalancedTernaryDigit(modX, pow);
+    code3x[i] = rx.digit;
+    modX = rx.remainder;
 
-    if (modY >= Math.ceil(pow / 2)) {
-      code3y[i] = 2;
-      modY -= pow;
-    } else if (modY <= -Math.ceil(pow / 2)) {
-      code3y[i] = 0;
-      modY += pow;
-    } else {
-      code3y[i] = 1;
-    }
-
-    // World-wrap correction at i=2
-    if (i === 2 && (locX === -180 || locX >= 0)) {
-      if (
-        code3x[0] === 2 &&
-        code3y[0] === 1 &&
-        code3x[1] === code3y[1] &&
-        code3x[2] === code3y[2]
-      ) {
-        code3x[0] = 1;
-        code3y[0] = 2;
-      } else if (
-        code3x[0] === 1 &&
-        code3y[0] === 0 &&
-        code3x[1] === code3y[1] &&
-        code3x[2] === code3y[2]
-      ) {
-        code3x[0] = 0;
-        code3y[0] = 1;
-      }
-    }
+    const ry = toBalancedTernaryDigit(modY, pow);
+    code3y[i] = ry.digit;
+    modY = ry.remainder;
   }
+
+  applyWorldWrapCorrection(code3x, code3y, locX);
 
   for (let i = 0; i < code3x.length; i++) {
     const code3 = "" + code3x[i] + code3y[i];
@@ -138,6 +143,25 @@ function getCode(
   const c2 = n % 30;
 
   return H_KEY[c1] + H_KEY[c2] + rest;
+}
+
+// Convert a base-9 digit character to its 2-digit base-3 representation
+function digitToBase3Pair(digit: string): string {
+  return parseInt(digit, 10).toString(3).padStart(2, "0");
+}
+
+// Convert an array of balanced ternary digits to an integer coordinate
+function fromBalancedTernary(digits: number[], level: number): number {
+  let result = 0;
+  for (let i = 0; i <= level + 2; i++) {
+    const pow = Math.pow(3, level + 2 - i);
+    if (digits[i] === 0) {
+      result -= pow;
+    } else if (digits[i] === 2) {
+      result += pow;
+    }
+  }
+  return result;
 }
 
 // Decode GeoHex code to grid coordinates
@@ -168,15 +192,8 @@ function getXYByCode(code: string): { x: number; y: number; level: number } {
 
   // Convert each base-9 digit to 2 base-3 digits
   let dec3 = "";
-  for (let i = 0; i < dec9.length; i++) {
-    const d = parseInt(dec9[i], 10).toString(3);
-    if (d.length === 1) {
-      dec3 += "0" + d;
-    } else if (d.length === 0) {
-      dec3 += "00";
-    } else {
-      dec3 += d;
-    }
+  for (const ch of dec9) {
+    dec3 += digitToBase3Pair(ch);
   }
 
   // De-interleave x and y base-3 digits
@@ -187,22 +204,8 @@ function getXYByCode(code: string): { x: number; y: number; level: number } {
     decY[i] = parseInt(dec3[i * 2 + 1], 10);
   }
 
-  // Convert balanced ternary to integer coordinates
-  let x = 0;
-  let y = 0;
-  for (let i = 0; i <= level + 2; i++) {
-    const pow = Math.pow(3, level + 2 - i);
-    if (decX[i] === 0) {
-      x -= pow;
-    } else if (decX[i] === 2) {
-      x += pow;
-    }
-    if (decY[i] === 0) {
-      y -= pow;
-    } else if (decY[i] === 2) {
-      y += pow;
-    }
-  }
+  const x = fromBalancedTernary(decX, level);
+  const y = fromBalancedTernary(decY, level);
 
   const adjusted = adjustXY(x, y, level);
   return { x: adjusted.x, y: adjusted.y, level };

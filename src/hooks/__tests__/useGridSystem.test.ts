@@ -200,12 +200,12 @@ describe("useGridSystem", () => {
     });
   });
 
-  // ─── setMode ─────────────────────────────────────────────────
+  // ─── changeMode ─────────────────────────────────────────────────
 
-  describe("setMode", () => {
+  describe("changeMode", () => {
     it("switches mode", () => {
       const { result } = renderHook(() => useGridSystem("geohex"));
-      act(() => result.current.setMode("geohash"));
+      act(() => result.current.changeMode("geohash"));
       expect(result.current.mode).toBe("geohash");
       expect(result.current.adapterName).toBe("GeoHash");
     });
@@ -213,10 +213,10 @@ describe("useGridSystem", () => {
     it("preserves per-mode level", () => {
       const { result } = renderHook(() => useGridSystem("geohex"));
       act(() => result.current.setLevel(10));
-      act(() => result.current.setMode("geohash"));
+      act(() => result.current.changeMode("geohash"));
       act(() => result.current.setLevel(3));
       // Switch back to geohex - level should be preserved
-      act(() => result.current.setMode("geohex"));
+      act(() => result.current.changeMode("geohex"));
       expect(result.current.level).toBe(10);
     });
 
@@ -224,7 +224,7 @@ describe("useGridSystem", () => {
       const { result } = renderHook(() => useGridSystem("geohex"));
       act(() => result.current.encodeFromClick(35.6812, 139.7671));
       const geohexCells = result.current.allLevelCells;
-      act(() => result.current.setMode("geohash"));
+      act(() => result.current.changeMode("geohash"));
       // Cells should change (different encoding system)
       expect(result.current.allLevelCells).not.toEqual(geohexCells);
       expect(result.current.allLevelCells.length).toBeGreaterThan(0);
@@ -234,7 +234,7 @@ describe("useGridSystem", () => {
       const { result } = renderHook(() => useGridSystem("geohex"));
       act(() => result.current.decodeFromInput("INVALID!!!"));
       expect(result.current.error).not.toBeNull();
-      act(() => result.current.setMode("geohash"));
+      act(() => result.current.changeMode("geohash"));
       expect(result.current.error).toBeNull();
     });
   });

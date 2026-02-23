@@ -44,6 +44,20 @@ export interface HashesInBoundsResult {
 // --- Core functions ---
 
 /**
+ * Bisect a numeric range based on a bit value.
+ * Returns [mid, max] if the bit is set (upper half),
+ * or [min, mid] if the bit is unset (lower half).
+ */
+function bisectRange(
+  min: number,
+  max: number,
+  bitSet: boolean,
+): [number, number] {
+  const mid = (min + max) / 2;
+  return bitSet ? [mid, max] : [min, mid];
+}
+
+/**
  * Encode latitude/longitude into a GeoHash string.
  */
 export function encode(
@@ -111,20 +125,11 @@ export function decodeBounds(code: string): GeoHashBounds {
       throw new Error(`Invalid GeoHash character: ${c}`);
     }
     for (let bit = 4; bit >= 0; bit--) {
+      const bitSet = Boolean(idx & (1 << bit));
       if (isLon) {
-        const mid = (lonMin + lonMax) / 2;
-        if (idx & (1 << bit)) {
-          lonMin = mid;
-        } else {
-          lonMax = mid;
-        }
+        [lonMin, lonMax] = bisectRange(lonMin, lonMax, bitSet);
       } else {
-        const mid = (latMin + latMax) / 2;
-        if (idx & (1 << bit)) {
-          latMin = mid;
-        } else {
-          latMax = mid;
-        }
+        [latMin, latMax] = bisectRange(latMin, latMax, bitSet);
       }
       isLon = !isLon;
     }
@@ -212,6 +217,82 @@ function getCellSize(precision: number): {
 }
 
 /**
+ * Normalize a longitude value to the range [-180, 180).
+ */
+function normalizeLongitude(lon: number): number {
+  if (lon > 180) {
+    return lon - 360;
+  }
+  if (lon < -180) {
+    return lon + 360;
+  }
+  return lon;
+}
+
+/**
+ * Check if a column has passed the east boundary of the viewport.
+ */
+function isPastEastBoundary(
+  normLon: number,
+  lonSize: number,
+  east: number,
+  wrapping: boolean,
+): boolean {
+  if (!wrapping) {
+    return normLon + lonSize / 2 > east;
+  }
+  return normLon > 0 && normLon + lonSize / 2 > east + 360;
+}
+
+/** Context for grid traversal within viewport bounds. */
+interface GridTraversalContext {
+  startLon: number;
+  lonSize: number;
+  precision: number;
+  east: number;
+  wrapping: boolean;
+  maxCols: number;
+  visited: Set<string>;
+  hashes: Array<{ code: string; center: LatLng; coords: LatLng[] }>;
+}
+
+/**
+ * Collect all GeoHash cells along one latitude row within the viewport.
+ * Mutates `ctx.visited` and `ctx.hashes` in place.
+ * Returns true if the render limit was exceeded.
+ */
+function collectRowCells(lat: number, ctx: GridTraversalContext): boolean {
+  let lon = ctx.startLon;
+  for (let col = 0; col < ctx.maxCols; col++) {
+    const normLon = normalizeLongitude(lon);
+    const cell = encode(
+      Math.max(-89.999999, Math.min(89.999999, lat)),
+      normLon,
+      ctx.precision,
+    );
+
+    if (!ctx.visited.has(cell.code)) {
+      ctx.visited.add(cell.code);
+      ctx.hashes.push({
+        code: cell.code,
+        center: { lat: cell.lat, lng: cell.lon },
+        coords: getRectCoords(cell.code),
+      });
+
+      if (ctx.hashes.length >= GEOHASH_RENDER_LIMIT) {
+        return true;
+      }
+    }
+
+    lon += ctx.lonSize;
+    if (isPastEastBoundary(normLon, ctx.lonSize, ctx.east, ctx.wrapping)) {
+      break;
+    }
+  }
+  return false;
+}
+
+/**
  * Get all GeoHash cells within the given map bounds.
  * Uses grid-based traversal since all cells at a given precision
  * have the same size in degrees.
@@ -238,68 +319,27 @@ export function getHashesInBounds(
   const startCell = encode(south, west, precision);
   const startBounds = decodeBounds(startCell.code);
 
-  const visited = new Set<string>();
-  const hashes: Array<{ code: string; center: LatLng; coords: LatLng[] }> = [];
+  const ctx: GridTraversalContext = {
+    startLon: startBounds.lonMin + lonSize / 2,
+    lonSize,
+    precision,
+    east,
+    wrapping: east < west,
+    maxCols: estimatedCols + 2, // safety margin
+    visited: new Set<string>(),
+    hashes: [],
+  };
 
-  // Step through the grid from south to north, west to east
+  // Step through the grid from south to north
   let lat = startBounds.latMin + latSize / 2;
   while (lat - latSize / 2 <= north) {
-    let lon = startBounds.lonMin + lonSize / 2;
-
-    // Handle date line wrapping
-    const handleWrapping = east < west;
-    let colCount = 0;
-    const maxCols = estimatedCols + 2; // safety margin
-
-    while (colCount < maxCols) {
-      // Normalize longitude to [-180, 180)
-      let normLon = lon;
-      if (normLon > 180) {
-        normLon -= 360;
-      }
-      if (normLon < -180) {
-        normLon += 360;
-      }
-
-      const cell = encode(
-        Math.max(-89.999999, Math.min(89.999999, lat)),
-        normLon,
-        precision,
-      );
-
-      if (!visited.has(cell.code)) {
-        visited.add(cell.code);
-        hashes.push({
-          code: cell.code,
-          center: { lat: cell.lat, lng: cell.lon },
-          coords: getRectCoords(cell.code),
-        });
-
-        if (hashes.length >= GEOHASH_RENDER_LIMIT) {
-          return { hashes: [], exceeded: true };
-        }
-      }
-
-      lon += lonSize;
-      colCount++;
-
-      // Check if we've passed the east boundary
-      if (!handleWrapping) {
-        if (normLon + lonSize / 2 > east) {
-          break;
-        }
-      } else {
-        // Wrapping: continue until we pass east (which is east of the date line)
-        if (normLon > 0 && normLon + lonSize / 2 > east + 360) {
-          break;
-        }
-      }
+    if (collectRowCells(lat, ctx)) {
+      return { hashes: [], exceeded: true };
     }
-
     lat += latSize;
   }
 
-  return { hashes, exceeded: false };
+  return { hashes: ctx.hashes, exceeded: false };
 }
 
 /**

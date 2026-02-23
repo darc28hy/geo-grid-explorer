@@ -18,15 +18,13 @@ bun install        # Install dependencies (uses bun.lock)
 
 Geo Grid Explorer is a React SPA that visualizes geographic grid systems (GeoHex v3, GeoHash) on Google Maps.
 
-### Component Hierarchy
+### Components
 
-```
-App.tsx — Layout (responsive sidebar + map)
-├── ControlPanel.tsx — Right panel: mode switch, level slider, code/coord search, cell list with copy
-└── MapView.tsx — Google Maps wrapper (@vis.gl/react-google-maps)
-    ├── Internal sub-components: MapClickHandler, FlyToHandler, MapStateTracker
-    └── GridOverlay.tsx — deck.gl PolygonLayer + TextLayer for grid rendering
-```
+- **`App.tsx`** — Layout (responsive sidebar + map)
+- **`MapView.tsx`** — Google Maps wrapper (@vis.gl/react-google-maps, internal sub-components: MapClickHandler, FlyToHandler, MapStateTracker)
+- **`GridOverlay.tsx`** — deck.gl PolygonLayer + TextLayer for grid rendering
+- **`ControlPanel.tsx`** — Right panel: mode switch, level slider, code/coord search, cell list with copy
+- **`NeighborSection.tsx`** — Collapsible neighbor cell list with copy functionality
 
 ### Domain Knowledge
 
@@ -42,8 +40,9 @@ GeoHex / GeoHash の仕様は以下を参照:
 - **`src/lib/geohash.ts`** — GeoHash implementation (base-32 encoding). Render limit: 50,000 cells.
 - **`src/lib/geohex-adapter.ts`** / **`src/lib/geohash-adapter.ts`** — GridAdapter wrappers.
 - **`src/lib/grid-registry.ts`** — `getAdapter(mode)` helper to retrieve adapters by GridMode.
-- **`src/hooks/useGridSystem.ts`** — Central state hook managing mode, per-mode grid levels, selected point, and all derived computations.
+- **`src/lib/validation.ts`** — `validateLatLng()` for parsing and validating coordinate string inputs.
 - **`src/lib/utils.ts`** — `cn()` helper (clsx + tailwind-merge).
+- **`src/hooks/useGridSystem.ts`** — Central state hook managing mode, per-mode grid levels, selected point, and all derived computations.
 
 ### UI Stack
 

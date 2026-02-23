@@ -126,6 +126,12 @@ function MapStateTracker({
 
 type LocateState = "idle" | "loading" | "error";
 
+const LOCATE_ICONS: Record<LocateState, React.ReactNode> = {
+  idle: <LocateFixed className="w-5 h-5 text-gray-700" />,
+  loading: <Loader2 className="w-5 h-5 text-gray-600 animate-spin" />,
+  error: <LocateOff className="w-5 h-5 text-red-500" />,
+};
+
 export function MapView({
   mode,
   level,
@@ -251,13 +257,7 @@ export function MapView({
           className="absolute bottom-[72px] right-2.5 z-[100] w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors disabled:cursor-wait"
           title="My location"
         >
-          {locateState === "loading" ? (
-            <Loader2 className="w-5 h-5 text-gray-600 animate-spin" />
-          ) : locateState === "error" ? (
-            <LocateOff className="w-5 h-5 text-red-500" />
-          ) : (
-            <LocateFixed className="w-5 h-5 text-gray-700" />
-          )}
+          {LOCATE_ICONS[locateState]}
         </button>
       )}
       {exceeded && (

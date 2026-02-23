@@ -12,7 +12,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
     mode,
-    setMode,
+    changeMode,
     level,
     setLevel,
     clickedLat,
@@ -84,7 +84,7 @@ function App() {
         >
           <ControlPanel
             mode={mode}
-            onModeChange={setMode}
+            onModeChange={changeMode}
             level={level}
             minLevel={minLevel}
             maxLevel={maxLevel}

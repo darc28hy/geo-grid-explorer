@@ -10,7 +10,7 @@ interface FlyTo {
 
 export interface UseGridSystemReturn {
   mode: GridMode;
-  setMode: (mode: GridMode) => void;
+  changeMode: (mode: GridMode) => void;
   level: number;
   setLevel: (level: number) => void;
   clickedLat: number | null;
@@ -33,7 +33,7 @@ export interface UseGridSystemReturn {
 export function useGridSystem(
   initialMode: GridMode = "geohex",
 ): UseGridSystemReturn {
-  const [mode, setModeInternal] = useState<GridMode>(initialMode);
+  const [mode, setMode] = useState<GridMode>(initialMode);
   // Manage levels independently per grid mode
   const [levels, setLevels] = useState<Record<GridMode, number>>({
     geohex: 4,
@@ -55,9 +55,9 @@ export function useGridSystem(
     [mode],
   );
 
-  const setMode = useCallback(
+  const changeMode = useCallback(
     (newMode: GridMode) => {
-      setModeInternal(newMode);
+      setMode(newMode);
 
       // Re-encode if a point is selected
       if (clickedLat !== null && clickedLng !== null) {
@@ -137,7 +137,7 @@ export function useGridSystem(
 
   return {
     mode,
-    setMode,
+    changeMode,
     level,
     setLevel,
     clickedLat,

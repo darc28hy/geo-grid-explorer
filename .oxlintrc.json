@@ -7,8 +7,17 @@
     "suspicious": "warn"
   },
   "rules": {
-    "react/react-in-jsx-scope": "off",
-    "curly": "error"
+    "complexity": ["warn", { "max": 15 }],
+    "curly": "error",
+    "no-nested-ternary": "error",
+    "typescript/prefer-nullish-coalescing": [
+      "error",
+      {
+        "ignoreBooleanCoercion": true,
+        "ignoreMixedLogicalExpressions": true
+      }
+    ],
+    "react/react-in-jsx-scope": "off"
   },
   "ignorePatterns": ["dist"]
 }

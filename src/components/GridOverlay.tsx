@@ -22,12 +22,12 @@ interface GridOverlayProps {
   selectedCode?: string | null;
 }
 
-// Unified color scheme (blue, matching app primary)
+// Colors derived from Tailwind theme: primary oklch(0.55 0.18 250), destructive oklch(0.577 0.245 27.325)
 const GRID_COLORS = {
-  fill: [59, 130, 246, 12] as [number, number, number, number],
-  fillSelected: [59, 130, 246, 60] as [number, number, number, number],
-  line: [59, 130, 246, 180] as [number, number, number, number],
-  text: [30, 64, 175, 255] as [number, number, number, number],
+  fill: [0, 114, 213, 12] as [number, number, number, number],
+  fillSelected: [231, 0, 11, 60] as [number, number, number, number],
+  line: [0, 114, 213, 180] as [number, number, number, number],
+  text: [0, 80, 160, 255] as [number, number, number, number],
 };
 
 /**

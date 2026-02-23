@@ -28,10 +28,10 @@ Geo Grid Explorer is a React SPA that visualizes geographic grid systems (GeoHex
 
 ### Domain Knowledge
 
-GeoHex / GeoHash の仕様は以下を参照:
+See the following docs for GeoHex / GeoHash specifications:
 
-- **`docs/geohex-spec.md`** — GeoHex v3 のコード体系、レベルとセルサイズ、エンコード/デコードの仕組み
-- **`docs/geohash-spec.md`** — GeoHash のbase-32文字セット、precision体系、プレフィックス階層性、GeoHexとの比較
+- **`docs/geohex-spec.md`** — GeoHex v3 code system, level-to-cell-size mapping, encode/decode algorithm
+- **`docs/geohash-spec.md`** — GeoHash base-32 character set, precision system, prefix hierarchy, comparison with GeoHex
 
 ### Core Logic
 

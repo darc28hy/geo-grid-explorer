@@ -18,7 +18,7 @@ export interface UseGridSystemReturn {
   allLevelCells: GridCell[];
   encodeFromClick: (lat: number, lng: number) => void;
   decodeFromInput: (code: string) => boolean;
-  searchByLatLng: (lat: number, lng: number) => void;
+  searchByLatLng: (lat: number, lng: number, zoomOverride?: number) => void;
   selectLevel: (level: number) => void;
   error: string | null;
   flyTo: FlyTo | null;
@@ -80,11 +80,11 @@ export function useGridSystem(
   );
 
   const searchByLatLng = useCallback(
-    (lat: number, lng: number) => {
+    (lat: number, lng: number, zoomOverride?: number) => {
       setClickedLat(lat);
       setClickedLng(lng);
       setAllLevelCells(adapter.encodeAllLevels(lat, lng));
-      setFlyTo({ lat, lng, zoom: adapter.levelToZoom(level) });
+      setFlyTo({ lat, lng, zoom: zoomOverride ?? adapter.levelToZoom(level) });
       setError(null);
     },
     [adapter, level],

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { Menu } from "lucide-react";
 import { MapView } from "@/components/MapView";
@@ -34,6 +34,11 @@ function App() {
 
   const adapter = getAdapter(mode);
 
+  const handleLocate = useCallback(
+    (lat: number, lng: number) => searchByLatLng(lat, lng, 16),
+    [searchByLatLng],
+  );
+
   return (
     <APIProvider apiKey={API_KEY}>
       <div className="flex w-full h-full">
@@ -42,6 +47,7 @@ function App() {
             mode={mode}
             level={level}
             onMapClick={encodeFromClick}
+            onLocate={handleLocate}
             flyTo={flyTo}
             selectedCode={
               allLevelCells.find((c) => c.level === level)?.code ?? null

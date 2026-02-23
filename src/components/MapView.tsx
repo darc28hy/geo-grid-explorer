@@ -1,6 +1,12 @@
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import {
+  ChevronUp,
+  ChevronDown,
+  LocateFixed,
+  LocateOff,
+  Loader2,
+} from "lucide-react";
 import { GridOverlay } from "./GridOverlay";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { GridMode, CellsInBoundsResult } from "@/lib/grid-types";
@@ -9,6 +15,7 @@ interface MapViewProps {
   mode: GridMode;
   level: number;
   onMapClick: (lat: number, lng: number) => void;
+  onLocate?: (lat: number, lng: number) => void;
   flyTo?: { lat: number; lng: number; zoom: number } | null;
   selectedCode?: string | null;
   getCellsInBounds: (
@@ -117,10 +124,13 @@ function MapStateTracker({
   return null;
 }
 
+type LocateState = "idle" | "loading" | "error";
+
 export function MapView({
   mode,
   level,
   onMapClick,
+  onLocate,
   flyTo,
   selectedCode,
   getCellsInBounds,
@@ -133,6 +143,7 @@ export function MapView({
     centerLng: 139.7671,
   });
   const [infoExpanded, setInfoExpanded] = useState(true);
+  const [locateState, setLocateState] = useState<LocateState>("idle");
 
   const handleClick = useCallback(
     (lat: number, lng: number) => {
@@ -142,6 +153,24 @@ export function MapView({
   );
 
   const handleMapStateChange = useCallback((s: MapState) => setMapState(s), []);
+
+  const handleLocate = useCallback(() => {
+    if (!navigator.geolocation || !onLocate) {
+      return;
+    }
+    setLocateState("loading");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocateState("idle");
+        onLocate(position.coords.latitude, position.coords.longitude);
+      },
+      () => {
+        setLocateState("error");
+        setTimeout(() => setLocateState("idle"), 2000);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }, [onLocate]);
 
   return (
     <>
@@ -212,6 +241,23 @@ export function MapView({
             </span>
             <ChevronDown className="w-3 h-3 text-gray-400" />
           </div>
+        </button>
+      )}
+      {onLocate && "geolocation" in navigator && (
+        <button
+          type="button"
+          onClick={handleLocate}
+          disabled={locateState === "loading"}
+          className="absolute bottom-[72px] right-2.5 z-[100] w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors disabled:cursor-wait"
+          title="My location"
+        >
+          {locateState === "loading" ? (
+            <Loader2 className="w-5 h-5 text-gray-600 animate-spin" />
+          ) : locateState === "error" ? (
+            <LocateOff className="w-5 h-5 text-red-500" />
+          ) : (
+            <LocateFixed className="w-5 h-5 text-gray-700" />
+          )}
         </button>
       )}
       {exceeded && (
